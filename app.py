@@ -13,7 +13,7 @@ detector = AutoTableDetector()
 formatter = AutoTableFormatter()
 
 # Configure the generative model (replace with your API key environment variable)
-api_key = os.getenv("GOOGLE_API_KEY_3")
+api_key = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=api_key)
 
 # Function to ingest a PDF and extract tables
