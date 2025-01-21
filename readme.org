@@ -1,5 +1,6 @@
 #+title: LLM extract data from tables in PDFs
 
+* Setup in uv
 
 #+BEGIN_SRC sh
 uv venv --python=3.12
@@ -8,6 +9,8 @@ uv run streamlit run app.py
 #+END_SRC
 
 Lightly tested. Sometimes only finds one table, not tested on very long documents.
+
+* Notes
 
 leaves temp pdf files around, i don't know why that is necessary. If it is because you don't have a path, then these should be saved in a tempfile.
 
