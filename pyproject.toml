@@ -11,4 +11,3 @@ dependencies = ["streamlit",
 "openpyxl",
 "PyPDFium2",
 "watchdog"]
-package-mode = false
