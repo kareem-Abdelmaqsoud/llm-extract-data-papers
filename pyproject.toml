@@ -2,7 +2,7 @@
 name = "llm-extract-data-papers"
 version = "0.1.0"
 description = "Add your description here"
-readme = "README.org"
+readme = "readme.org"
 requires-python = ">=3.12"
 dependencies = ["streamlit",
 "gmft",
