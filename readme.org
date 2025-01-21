@@ -1,0 +1,28 @@
+#+title: LLM extract data from tables in PDFs
+
+
+#+BEGIN_SRC sh
+uv venv --python=3.12
+source .venv/bin/activate
+uv run streamlit run app.py
+#+END_SRC
+
+Lightly tested. Sometimes only finds one table, not tested on very long documents.
+
+leaves temp pdf files around, i don't know why that is necessary. If it is because you don't have a path, then these should be saved in a tempfile.
+
+Untested, but something like this:
+
+#+BEGIN_SRC python
+import tempfile
+import os
+
+with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as pdf_path:
+    with open(pdf_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+    return pdf_path
+#+END_SRC
+
+These will be automatically cleaned up by the OS eventually.
+
+But, why not use an actual path and just read the file you have? I am sure there is a way to get that.

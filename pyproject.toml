@@ -1,0 +1,13 @@
+[project]
+name = "llm-extract-data-papers"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["streamlit",
+"gmft",
+"google-generativeai",
+"pandas",
+"openpyxl",
+"PyPDFium2",
+"watchdog"]
