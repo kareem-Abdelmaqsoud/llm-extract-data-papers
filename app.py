@@ -104,7 +104,7 @@ if uploaded_file:
     # Generate image for the current table only once
     if f"image_{current_index}" not in st.session_state:
         ft = formatter.extract(table)
-        image = ft.image(dpi=96)
+        image = ft.image(dpi=128)
         st.session_state[f"image_{current_index}"] = image
     else:
         image = st.session_state[f"image_{current_index}"]
