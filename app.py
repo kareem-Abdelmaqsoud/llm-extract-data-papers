@@ -1,18 +1,18 @@
 import streamlit as st
-from gmft.auto import AutoTableDetector, AutoTableFormatter
+from gmft.auto import CroppedTable, AutoTableDetector, AutoTableFormatter
 from gmft.pdf_bindings import PyPDFium2Document
 import google.generativeai as genai
 import base64
 import io
 import json
 import pandas as pd
-import os
 
 # Initialize the GMFT components
 detector = AutoTableDetector()
 formatter = AutoTableFormatter()
 
 # Configure the generative model (replace with your API key environment variable)
+import os
 api_key = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=api_key)
 
@@ -51,7 +51,7 @@ def text_to_dataframe(response_text):
     2. "data": A list of rows, where each row is a list of values corresponding to the headers.
 
     Make sure:
-    - Missing values in the table are represented as null in the JSON.
+    - Missing values in the table are represented as `null` in the JSON.
     - Numeric values are properly formatted as numbers, not strings.
     - The JSON should not contain any additional text or explanations, only the structured JSON object.
 
@@ -85,65 +85,39 @@ if uploaded_file:
     with open(pdf_path, "wb") as f:
         f.write(uploaded_file.getbuffer())
 
-    # Check if the tables are already loaded in session_state
-    if "tables" not in st.session_state:
-        # Extract tables from the PDF
-        st.write("Processing the PDF to detect tables...")
-        tables, doc = ingest_pdf(pdf_path)
-        st.session_state.tables = tables
-        st.session_state.doc = doc
-        st.session_state.current_table_index = 0
+    # Extract tables from the PDF
+    st.write("Processing the PDF to detect tables...")
+    tables, doc = ingest_pdf(pdf_path)
+    st.write(f"Number of tables detected: {len(tables)}")
 
-    # Get the current table index and ensure it's within valid bounds
-    current_index = st.session_state.current_table_index
-    current_index = max(0, min(current_index, len(st.session_state.tables) - 1))  # Ensuring index is valid
-
-    # Access the current table safely
-    table = st.session_state.tables[current_index]
-
-    # Generate image for the current table only once
-    if f"image_{current_index}" not in st.session_state:
+    # Iterate through detected tables
+    for i, table in enumerate(tables):
+        st.write(f"Table {i+1}")
         ft = formatter.extract(table)
-        image = ft.image(dpi=128)
-        st.session_state[f"image_{current_index}"] = image
-    else:
-        image = st.session_state[f"image_{current_index}"]
+        image = ft.image(dpi=256)
+        st.image(image, caption=f"Table {i+1}", use_column_width=True)
 
-    # Display table image
-    st.image(image, caption=f"Table {current_index + 1}", use_container_width=True)
+        if st.button(f"Process Table {i+1}", key=f"table_{i+1}"):
+            st.write("Processing table with Gemini...")
+            response_text = extract_table_data(image)
 
-    # Process Table Button
-    if st.button(f"Process Table {current_index + 1}", key="process_table"):
-        st.write("Processing table with Gemini...")
-        response_text = extract_table_data(image)
+            st.write("Extracting structured data...")
+            df = text_to_dataframe(response_text)
 
-        st.write("Extracting structured data...")
-        df = text_to_dataframe(response_text)
+            st.dataframe(df)
 
-        st.dataframe(df)
+            # Save the DataFrame to an in-memory buffer as an Excel file
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
+                df.to_excel(writer, index=False)
 
-        # Save the DataFrame to an in-memory buffer as an Excel file
-        buffer = io.BytesIO()
-        with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
-            df.to_excel(writer, index=False)
+            # Rewind the buffer to the beginning
+            buffer.seek(0)
 
-        # Rewind the buffer to the beginning
-        buffer.seek(0)
-
-        # Add a download button
-        st.download_button(
-            label="Download Table as Excel",
-            data=buffer,
-            file_name=f"table_{current_index + 1}.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-
-    # Navigation Buttons
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col1:
-        if st.button("Previous Table", disabled=(current_index == 0)):
-            st.session_state.current_table_index -= 1
-
-    with col3:
-        if st.button("Next Table", disabled=(current_index == len(st.session_state.tables) - 1)):
-            st.session_state.current_table_index += 1
+            # Add a download button
+            st.download_button(
+                label="Download Table as Excel",
+                data=buffer,
+                file_name=f"table_{i+1}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
