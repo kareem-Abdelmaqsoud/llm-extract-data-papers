@@ -95,7 +95,7 @@ if uploaded_file:
         st.write(f"Table {i+1}")
         ft = formatter.extract(table)
         image = ft.image(dpi=256)
-        st.image(image, caption=f"Table {i+1}", use_column_width=True)
+        st.image(image, caption=f"Table {i+1}", use_container_width=True)
 
         if st.button(f"Process Table {i+1}", key=f"table_{i+1}"):
             st.write("Processing table with Gemini...")
