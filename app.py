@@ -138,14 +138,13 @@ if uploaded_file:
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
-    # Navigation Buttons
     col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
         if st.button("Previous Table", disabled=(current_index == 0)):
-            st.session_state.current_table_index = max(0,current_index -1)
+            st.session_state.current_table_index = max(0, current_index - 1)
             st.experimental_rerun()
-
+    
     with col3:
         if st.button("Next Table", disabled=(current_index == len(st.session_state.tables) - 1)):
-            st.session_state.current_table_index = min(len(st.session_state.tables) - 1), current_index +1)
+            st.session_state.current_table_index = min(len(st.session_state.tables) - 1, current_index + 1)
             st.experimental_rerun()
