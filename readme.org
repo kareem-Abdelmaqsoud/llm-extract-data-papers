@@ -1,5 +1,10 @@
 #+title: LLM extract data from tables in PDFs
 
+* Web App
+We built a web app that allows the user to upload their paper pdf, extract the data from tables, and download the data as an Excel sheet. 
+https://llm-extract-data-papers.streamlit.app/
+
+
 * Setup in uv
 
 #+BEGIN_SRC sh
